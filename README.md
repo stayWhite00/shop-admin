@@ -1,11 +1,11 @@
 <p align="center">
     <img alt="logo" src="public/faviconBaiZe.ico">
 </p>
-<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">BaiZe-ui (RuoYi) v3.8.7</h1>
+<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">BaiZe-ui (RuoYi) v3.8.8</h1>
 <h4 align="center">基于SpringBoot + Vue2 前后端分离的Java快速开发框架 前端页面</h4>
 <p align="center">
 	<a href="https://gitee.com/chaoscat/BaiZe-ui/stargazers"><img src="https://gitee.com/y_project/RuoYi-Vue/badge/star.svg?theme=dark"></a>
-	<a href="https://gitee.com/chaoscat/BaiZe-ui"><img src="https://img.shields.io/badge/RuoYi-v3.8.7-brightgreen.svg"></a>
+	<a href="https://gitee.com/chaoscat/BaiZe-ui"><img src="https://img.shields.io/badge/RuoYi-v3.8.8-brightgreen.svg"></a>
 	<a href="https://gitee.com/chaoscat/BaiZe-ui/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
 </p>
 
