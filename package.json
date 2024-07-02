@@ -3,7 +3,7 @@
   "version": "3.8.8",
   "description": "若依管理系统",
   "author": "若依",
-  "license": "MIT",
+  "license": "MulanPSL-2.0",
   "scripts": {
     "dev": "vue-cli-service serve",
     "build:prod": "vue-cli-service build",
