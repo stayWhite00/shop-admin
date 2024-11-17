@@ -46,7 +46,6 @@
     "clipboard": "2.0.8",
     "core-js": "3.37.1",
     "crypto-js": "4.1.1",
-    "watermark-dom": "2.3.0",
     "echarts": "5.4.3",
     "element-ui": "2.15.14",
     "file-saver": "2.0.5",
@@ -81,8 +80,10 @@
     "vue-router": "3.4.9",
     "vuedraggable": "2.24.3",
     "vuex": "3.6.0",
+    "watermark-dom": "2.3.0",
     "xlsx": "0.18.5",
-    "y_treeselect": "1.0.1"
+    "y_treeselect": "1.0.1",
+    "yorkie": "^2.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.4.6",
