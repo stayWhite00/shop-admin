@@ -74,22 +74,12 @@
         prop="categoryId"
         width="100"
       />
-      <el-table-column label="图标" align="center" prop="icon" width="100">
-        <template slot-scope="scope">
-          <image-preview :src="scope.row.icon" :width="40" :height="40" />
-        </template>
-      </el-table-column>
       <el-table-column label="排序" align="center" prop="sort" width="100" />
       <el-table-column label="状态" align="center" prop="status" width="100">
         <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.status"
-            :active-value="0"
-            :inactive-value="1"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            @change="handleStatusChange(scope.row)"
-          ></el-switch>
+          <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
+            {{ scope.row.status === 0 ? "启用" : "停用" }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -152,9 +142,6 @@
         </el-form-item>
         <el-form-item label="分类名称" prop="categoryName">
           <el-input v-model="form.categoryName" placeholder="请输入分类名称" />
-        </el-form-item>
-        <el-form-item label="图标" prop="icon">
-          <image-upload v-model="form.icon" :limit="1" />
         </el-form-item>
         <el-form-item label="显示排序" prop="sort">
           <el-input-number
@@ -264,7 +251,6 @@ export default {
         categoryId: null,
         parentId: 0,
         categoryName: null,
-        icon: null,
         sort: 0,
         status: 0,
       };
@@ -350,24 +336,6 @@ export default {
           this.$modal.msgSuccess("批量停用成功");
         })
         .catch(() => {});
-    },
-    /** 状态开关切换处理 */
-    handleStatusChange(row) {
-      const text = row.status === 0 ? "启用" : "停用";
-      this.$modal
-        .confirm(`确认要${text}分类【${row.categoryName}】吗？`)
-        .then(() => {
-          return changeCategoryStatus({
-            categoryIds: [row.categoryId],
-            status: row.status,
-          });
-        })
-        .then(() => {
-          this.$modal.msgSuccess(`${text}成功`);
-        })
-        .catch(() => {
-          row.status = row.status === 0 ? 1 : 0;
-        });
     },
     /** 单个分类启用/停用按钮处理 */
     handleSingleStatusChange(row, status) {
