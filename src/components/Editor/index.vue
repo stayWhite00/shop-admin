@@ -23,6 +23,7 @@ import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 import { getToken } from "@/utils/auth";
+import { isExternal } from "@/utils/validate";
 
 export default {
   name: "Editor",
@@ -181,13 +182,18 @@ export default {
         // 获取富文本组件实例
         let quill = this.Quill;
         // 获取光标所在位置
-        let length = quill.getSelection().index;
-        // 插入图片  res.data.url为服务器返回的图片地址
-        quill.insertEmbed(length, "image", process.env.VUE_APP_BASE_API + res.data.fileName);
+        let length = quill.getSelection() ? quill.getSelection().index : quill.getLength();
+        // 获取返回的图片地址
+        let url = (res.data && (res.data.url || res.data.fileName)) || res.url || res.fileName;
+        if (url && !isExternal(url)) {
+          url = process.env.VUE_APP_BASE_API + url;
+        }
+        // 插入图片
+        quill.insertEmbed(length, "image", url);
         // 调整光标到最后
         quill.setSelection(length + 1);
       } else {
-        this.$message.error("图片插入失败");
+        this.$message.error(res.msg || "图片插入失败");
       }
     },
     handleUploadError() {

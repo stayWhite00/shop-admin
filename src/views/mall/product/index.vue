@@ -183,18 +183,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="所属分类" prop="categoryId">
-              <el-select
+              <treeselect
                 v-model="form.categoryId"
+                :options="categoryOptions"
+                :normalizer="normalizer"
                 placeholder="请选择分类"
-                style="width: 100%"
-              >
-                <el-option
-                  v-for="c in categoryList"
-                  :key="c.categoryId"
-                  :label="c.categoryName"
-                  :value="c.categoryId"
-                />
-              </el-select>
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -272,9 +266,12 @@ import {
   changeProductStatus,
   listCategory,
 } from "@/api/mall/product";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Product",
+  components: { Treeselect },
   data() {
     return {
       loading: true,
@@ -285,6 +282,7 @@ export default {
       total: 0,
       productList: [],
       categoryList: [],
+      categoryOptions: [],
       title: "",
       open: false,
       queryParams: {
@@ -319,9 +317,25 @@ export default {
         this.loading = false;
       });
     },
+    /** 转换分类数据结构 */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.categoryId,
+        label: node.categoryName,
+        children: node.children,
+      };
+    },
     getCategoryList() {
       listCategory().then((res) => {
-        this.categoryList = res.data;
+        this.categoryList = res.data || [];
+        this.categoryOptions = this.handleTree(
+          res.data,
+          "categoryId",
+          "parentId"
+        );
       });
     },
     handleQuery() {
@@ -368,11 +382,13 @@ export default {
     },
     handleAdd() {
       this.reset();
+      this.getCategoryList();
       this.open = true;
       this.title = "添加商品";
     },
     handleUpdate(row) {
       this.reset();
+      this.getCategoryList();
       const id = row.productId || this.ids;
       getProduct(id).then((response) => {
         this.form = response.data;
