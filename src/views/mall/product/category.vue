@@ -96,6 +96,7 @@
             >修改</el-button
           >
           <el-button
+            v-if="scope.row.parentId === 0"
             size="mini"
             type="text"
             icon="el-icon-plus"
@@ -227,6 +228,7 @@ export default {
         id: node.categoryId,
         label: node.categoryName,
         children: node.children,
+        isDisabled: node.isDisabled,
       };
     },
     handleSelectionChange(selection) {
@@ -234,15 +236,38 @@ export default {
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
-    getTreeselect() {
+    /** 查询分类下拉树结构（限制最多两级） */
+    getTreeselect(currentId) {
       listCategory().then((response) => {
         this.categoryOptions = [];
         const menu = { categoryId: 0, categoryName: "主类目", children: [] };
-        menu.children = this.handleTree(
-          response.data,
-          "categoryId",
-          "parentId"
-        );
+        // 判断当前编辑分类是否已有子分类
+        const hasChildren = currentId
+          ? response.data.some((item) => item.parentId === currentId)
+          : false;
+
+        // 系统限制最多两级分类：
+        // 只有一级分类（parentId === 0）才能被选作父级分类。
+        const level1List = response.data
+          .filter((item) => Number(item.parentId) === 0)
+          .map((item) => {
+            let isDisabled = false;
+            // 不能选择自己作为父级
+            if (currentId && currentId === item.categoryId) {
+              isDisabled = true;
+            }
+            // 若当前分类已有下级子分类，则禁止选择任何一级分类作为父级（避免变成三级）
+            if (hasChildren) {
+              isDisabled = true;
+            }
+            return {
+              categoryId: item.categoryId,
+              categoryName: item.categoryName,
+              isDisabled: isDisabled,
+            };
+          });
+
+        menu.children = level1List;
         this.categoryOptions.push(menu);
       });
     },
@@ -258,21 +283,24 @@ export default {
     },
     handleAdd(row) {
       this.reset();
-      this.getTreeselect();
       if (row != null && row.categoryId) {
+        // 如果点击的是二级分类，不允许添加子分类
+        if (row.parentId !== 0) {
+          this.$modal.msgWarning("系统最多支持二级分类，不能在二级分类下添加子分类");
+          return;
+        }
         this.form.parentId = row.categoryId;
       } else {
         this.form.parentId = 0;
       }
+      this.getTreeselect();
       this.open = true;
       this.title = "添加分类";
     },
     handleUpdate(row) {
       this.reset();
-      this.getTreeselect();
       const id = row.categoryId || this.ids[0];
-      // Note: Here we assume categoryList has the data. For exact data we might need a getCategory(id) API.
-      // But since listCategory returns all, we can just find it.
+      this.getTreeselect(id);
       listCategory().then((response) => {
         let item = response.data.find((d) => d.categoryId === id);
         if (item) {
@@ -286,6 +314,20 @@ export default {
       this.$refs["form"].validate((valid) => {
         if (valid) {
           if (this.form.categoryId != null) {
+            if (Number(this.form.parentId) !== 0) {
+              const hasChildren = this.categoryList.some(
+                (c) =>
+                  c.categoryId === this.form.categoryId &&
+                  c.children &&
+                  c.children.length > 0
+              );
+              if (hasChildren) {
+                this.$modal.msgError(
+                  "该分类下已有子分类，无法变更为二级分类（系统最多支持二级分类）"
+                );
+                return;
+              }
+            }
             updateCategory(this.form).then((response) => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
